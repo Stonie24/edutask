@@ -12,6 +12,7 @@ frontend/node_modules
 /.pnp
 .pnp.js
 
+/venv
 
 # misc
 .DS_Store
