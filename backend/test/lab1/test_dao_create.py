@@ -68,19 +68,20 @@ class TestCreateMethodInDAO:
         with pytest.raises(WriteError):
             sut.create(data)
 
-    def test_value_flagged_as_unique(self, sut):
+    @pytest.mark.parametrize("desc1,desc2", [
+        ("a description", "a description"),
+    ])
+    def test_value_flagged_as_unique(self, sut, desc1, desc2):
         data1 = {
-            "description": "a description",
-            "done": True,
-            "uniqueItems": True
+            "description": desc1,
+            "done": True
         }
 
         data2 = {
-            "description": "a description",
-            "done": True,
-            "uniqueItems": True
+            "description": desc2,
+            "done": True
         }
 
+        sut.create(data1)
         with pytest.raises(WriteError):
-            sut.create(data1)
             sut.create(data2)
