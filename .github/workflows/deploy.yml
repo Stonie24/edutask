@@ -20,4 +20,4 @@ jobs:
                     pip install -r requirements.pip
 
             - name: Run tests
-              run: pytest --disable-warnings
+              run: pytest -m usercontroller --disable-warnings && pytest -m daocreate --disable-warnings
