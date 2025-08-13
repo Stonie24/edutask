@@ -1,4 +1,5 @@
 describe('Logging into the system', () => {
+  let uid // user id
 
   before(() => {
     cy.request({
@@ -6,12 +7,14 @@ describe('Logging into the system', () => {
       url: 'http://localhost:5000/users/create',
       form: true,
       body: {
-        firstName: 'Test',
-        lastName: 'User',
-        email: 'test1245@test.com'
+        firstName: 'wow12',
+        lastName: 'wow12',
+        email: 'wowsocool12@gmail.com'
       }
     }).then((response) => {
       expect(response.status).to.eq(200);
+      uid = response.body._id.$oid
+      console.log(response)
     });
   });
 
@@ -20,7 +23,7 @@ describe('Logging into the system', () => {
     cy.contains('div', 'Login')
       .find('input[type=text]')
       .first()
-      .type('test1245@test.com');
+      .type('wowsocool12@gmail.com');
     cy.get('form').submit();
   });
 
@@ -48,10 +51,12 @@ describe('Logging into the system', () => {
     });
   });
 
-  describe('R8UC1 Scenario 2 - Create new task with no text input', () => {
+  describe('R8UC1 Scenario 2 - Check if its possible to create a todo without a title', () => {
     it('Should handle empty task input gracefully', () => {
-      cy.get('img').last().click();
-      cy.get('form').last().submit();
+       cy.get('img').last().click();
+       cy.get('form').last().within(() => {
+        cy.get('input[type=submit]').should('disabled');
+       });
     });
   });
 
@@ -106,4 +111,30 @@ describe('Logging into the system', () => {
       });
     });
   });
+
+ after(() => {
+  // First delete all tasks belonging to this user
+  cy.request({
+    method: 'GET',
+    url: `http://localhost:5000/tasks/ofuser/${uid}`
+  }).then((response) => {
+    const tasks = response.body;
+    
+    // If tasks exist, delete them one by one
+    tasks.forEach(task => {
+      cy.request({
+        method: 'DELETE',
+        url: `http://localhost:5000/tasks/byid/${task._id.$oid}`
+      });
+    });
+  }).then(() => {
+    // Then delete the user
+    cy.request({
+      method: 'DELETE',
+      url: `http://localhost:5000/users/${uid}`
+    });
+  });
+});
+
+
 });
